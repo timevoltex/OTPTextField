@@ -62,6 +62,8 @@ class OTPTextField extends StatefulWidget {
 
   final List<TextInputFormatter>? inputFormatter;
 
+  final bool enableAll;
+
   const OTPTextField({
     Key? key,
     this.length = 4,
@@ -73,7 +75,7 @@ class OTPTextField extends StatefulWidget {
     this.hasError = false,
     this.keyboardType = TextInputType.number,
     this.style = const TextStyle(),
-    this.outlineBorderRadius: 10,
+    this.outlineBorderRadius = 10,
     this.textCapitalization = TextCapitalization.none,
     this.textFieldAlignment = MainAxisAlignment.spaceBetween,
     this.obscureText = false,
@@ -84,6 +86,7 @@ class OTPTextField extends StatefulWidget {
         const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
     this.isDense = false,
     this.onCompleted,
+    this.enableAll = false,
   })  : assert(length > 1),
         super(key: key);
 
@@ -162,16 +165,20 @@ class _OTPTextFieldState extends State<OTPTextField> {
 
     final isLast = index == widget.length - 1;
 
-    InputBorder _getBorder(Color color) {
-      final colorOrError =
-          widget.hasError ? _otpFieldStyle.errorBorderColor : color;
+    InputBorder _getBorder(Color color, double width) {
+      Color colorOrError;
+      double widthOrError;
+
+      colorOrError = widget.hasError ? _otpFieldStyle.errorBorderColor : color;
+      widthOrError = widget.hasError ? _otpFieldStyle.errorBorderWidth : width;
 
       return widget.fieldStyle == FieldStyle.box
           ? OutlineInputBorder(
-              borderSide: BorderSide(color: colorOrError),
+              borderSide: BorderSide(color: colorOrError, width: widthOrError),
               borderRadius: BorderRadius.circular(widget.outlineBorderRadius),
             )
-          : UnderlineInputBorder(borderSide: BorderSide(color: colorOrError));
+          : UnderlineInputBorder(
+              borderSide: BorderSide(color: colorOrError, width: widthOrError));
     }
 
     return Container(
@@ -195,12 +202,21 @@ class _OTPTextFieldState extends State<OTPTextField> {
           fillColor: _otpFieldStyle.backgroundColor,
           counterText: "",
           contentPadding: widget.contentPadding,
-          border: _getBorder(_otpFieldStyle.borderColor),
-          focusedBorder: _getBorder(_otpFieldStyle.focusBorderColor),
-          enabledBorder: _getBorder(_otpFieldStyle.enabledBorderColor),
-          disabledBorder: _getBorder(_otpFieldStyle.disabledBorderColor),
-          errorBorder: _getBorder(_otpFieldStyle.errorBorderColor),
-          focusedErrorBorder: _getBorder(_otpFieldStyle.errorBorderColor),
+          border: _getBorder(
+              _otpFieldStyle.borderColor, _otpFieldStyle.borderWidth),
+          focusedBorder: _getBorder(
+              _otpFieldStyle.focusBorderColor, _otpFieldStyle.focusBorderWidth),
+          enabledBorder: _focusNodes.any((e) => e?.hasFocus ?? false)
+              ? _getBorder(_otpFieldStyle.errorBorderColor,
+                  _otpFieldStyle.focusBorderWidth)
+              : _getBorder(_otpFieldStyle.enabledBorderColor,
+                  _otpFieldStyle.enabledBorderWidth),
+          disabledBorder: _getBorder(_otpFieldStyle.disabledBorderColor,
+              _otpFieldStyle.disabledBorderWidth),
+          errorBorder: _getBorder(
+              _otpFieldStyle.errorBorderColor, _otpFieldStyle.errorBorderWidth),
+          focusedErrorBorder: _getBorder(
+              _otpFieldStyle.errorBorderColor, _otpFieldStyle.focusBorderWidth),
           errorText: null,
           // to hide the error text
           errorStyle: const TextStyle(height: 0, fontSize: 0),

@@ -53,6 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
             fieldStyle: FieldStyle.box,
             outlineBorderRadius: 15,
             style: TextStyle(fontSize: 17),
+            enableAll: true,
+            otpFieldStyle: OtpFieldStyle(
+              focusBorderColor: Colors.red,
+              focusBorderWidth: 3,
+            ),
             onChanged: (pin) {
               print("Changed: " + pin);
             },
